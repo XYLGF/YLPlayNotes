@@ -1,0 +1,16 @@
+name = "yl-note"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[assets]
+directory = "./"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "yl_note_db"
+database_id = "88a7cbab-33ae-48bd-86e8-118d7b0e5177"
+
+routes = [
+  { pattern = "note.xylplay.top", custom_domain = true }
+]
