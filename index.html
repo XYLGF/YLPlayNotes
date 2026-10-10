@@ -148,7 +148,7 @@
       background: #E9E9EA; transition: background 0.3s;
       border-radius: 30px;
     }
-    .slider:before {
+    body:not(.theme-ios) .slider:before {
       position: absolute; content: "";
       height: 22px; width: 22px;
       left: 4px; bottom: 4px;
@@ -157,9 +157,8 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .switch input:checked + .slider { background: #111111; }
-    .switch input:checked + .slider:before { transform: translateX(22px); }
+    body:not(.theme-ios) .switch input:checked + .slider:before { transform: translateX(22px); }
     body.theme-md3 .switch input:checked + .slider { background: #6750a4; }
-    body.theme-ios .switch input:checked + .slider { background: #34C759; }
     body.theme-ai .switch input:checked + .slider {
       background: linear-gradient(135deg, #4F8BFF 0%, #A855F7 100%);
     }
@@ -246,45 +245,7 @@
       border: none; background: #ffffff; border-radius: 14px;
       box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     }
-    body.theme-ios .settings-option {
-      border: none; background: #F2F2F7; border-radius: 10px;
-    }
-    body.theme-ios .settings-option.selected { background: #007AFF; color: #fff; }
     body.theme-ios .toast { background: rgba(0,0,0,0.82); border-radius: 14px; }
-
-    body.theme-ios .btn {
-      position: relative;
-      background: rgba(255,255,255,0.65) !important;
-      backdrop-filter: blur(20px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-      border: 1px solid rgba(255,255,255,0.6) !important;
-      color: #000 !important;
-      border-radius: 50px !important;
-      overflow: hidden;
-      box-shadow:
-        0 4px 16px rgba(0,0,0,0.06),
-        inset 0 1px 0 rgba(255,255,255,0.8),
-        inset 0 -1px 0 rgba(255,255,255,0.2) !important;
-      isolation: isolate;
-    }
-    body.theme-ios .btn::before {
-      content: '';
-      position: absolute;
-      inset: -100%;
-      background: conic-gradient(
-        from 0deg,
-        transparent 0%,
-        rgba(255,255,255,0.55) 8%,
-        transparent 18%,
-        transparent 82%,
-        rgba(255,255,255,0.55) 92%,
-        transparent 100%
-      );
-      animation: liquidGlassRotate 5s linear infinite;
-      pointer-events: none;
-      z-index: -1;
-    }
-    body.theme-ios .btn > * { position: relative; z-index: 1; }
 
     body.material-on.theme-ios .navbar {
       backdrop-filter: blur(20px) saturate(180%);
@@ -380,9 +341,173 @@
       border-radius: 14px;
     }
     body.theme-ai .empty-tip { color: rgba(232,233,243,0.5); }
+
+    /* ===================================================== */
+    /* iOS 液态玻璃开关（真折射 + 物理引擎）                   */
+    /* ===================================================== */
+    body.theme-ios .switch {
+      --p: 0;
+      --press: 0;
+      position: relative;
+      flex: none;
+      width: 64px;
+      height: 28px;
+      padding: 0;
+      border: 0 !important;
+      border-radius: 999px !important;
+      background: none !important;
+      cursor: pointer;
+      touch-action: none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: none !important;
+      display: inline-block;
+    }
+    body.theme-ios .switch input { display: none; }
+    body.theme-ios .switch .lg-track {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      overflow: hidden;
+      background: rgba(120, 120, 128, 0.5);
+    }
+    body.theme-ios .switch .lg-track::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: #34C759;
+      opacity: var(--p);
+    }
+    body.theme-ios .switch .lg-thumb {
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      width: 40px;
+      height: 24px;
+      border-radius: 12px;
+      pointer-events: none;
+      will-change: transform;
+    }
+    body.theme-ios .switch .lg-thumb .lg-glass {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      -webkit-backdrop-filter: blur(calc(8px * (1 - var(--press)))) saturate(1.2);
+              backdrop-filter: blur(calc(8px * (1 - var(--press)))) saturate(1.2);
+      box-shadow:
+        inset 0 4px 4px rgba(0,0,0,calc(.3 * var(--press) * .35)),
+        0 .7px 4px rgba(0,0,0,.05);
+    }
+    body.theme-ios .switch.lg-refract .lg-thumb .lg-glass {
+      -webkit-backdrop-filter: url(#lg-knob) saturate(1.2);
+              backdrop-filter: url(#lg-knob) saturate(1.2);
+    }
+    body.theme-ios .switch .lg-thumb .lg-solid {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: #fff;
+      box-shadow: 0 0 0 .5px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.2);
+      opacity: calc(1 - var(--press));
+    }
+    body.theme-ios .switch .lg-thumb .lg-rim {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 0.5px;
+      background: linear-gradient(135deg, rgba(255,255,255,1), rgba(255,255,255,0.15) 35%, rgba(255,255,255,0.15) 65%, rgba(255,255,255,1));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+              mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+      opacity: var(--press);
+    }
+
+    /* ===================================================== */
+    /* iOS 液态玻璃按钮 / 设置选项                            */
+    /* ===================================================== */
+    body.theme-ios .btn,
+    body.theme-ios .settings-option {
+      --press: 0;
+      position: relative;
+      border: 0 !important;
+      background: none !important;
+      color: #000 !important;
+      font-weight: 500;
+      cursor: pointer;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      will-change: transform;
+      overflow: visible;
+      box-shadow: none !important;
+      font-family: inherit;
+    }
+    body.theme-ios .btn {
+      height: 48px;
+      padding: 0 26px;
+      border-radius: 999px !important;
+      font-size: calc(15px * var(--font-scale));
+      letter-spacing: 0 !important;
+    }
+    body.theme-ios .settings-option {
+      border-radius: 14px !important;
+      font-size: calc(15px * var(--font-scale));
+      padding: 12px 10px;
+      text-align: center;
+      flex: 1;
+      min-width: 90px;
+    }
+    body.theme-ios .btn .lg-glass,
+    body.theme-ios .settings-option .lg-glass {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: rgba(255, 255, 255, 0.32);
+      -webkit-backdrop-filter: url(#lg-btn-0) blur(2px) saturate(1.5);
+              backdrop-filter: url(#lg-btn-0) blur(2px) saturate(1.5);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    }
+    body.theme-ios .btn .lg-glass::after,
+    body.theme-ios .settings-option .lg-glass::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 0.5px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.55));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+              mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    }
+    body.theme-ios .btn .lg-glass::before,
+    body.theme-ios .settings-option .lg-glass::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(80px 60px at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,0.35), rgba(255,255,255,0) 70%);
+      opacity: var(--press);
+    }
+    body.theme-ios .btn > span,
+    body.theme-ios .btn > *:not(.lg-glass),
+    body.theme-ios .settings-option > span,
+    body.theme-ios .settings-option > *:not(.lg-glass) {
+      position: relative;
+      z-index: 1;
+    }
+    body.theme-ios .settings-option.selected {
+      background: rgba(52, 199, 89, 0.85) !important;
+      color: #fff !important;
+      box-shadow: 0 4px 20px rgba(52, 199, 89, 0.35) !important;
+    }
   </style>
 </head>
 <body>
+
+  <!-- SVG 滤镜容器 -->
+  <svg id="lg-defs" width="0" height="0" aria-hidden="true" style="position:absolute;"></svg>
 
   <header class="navbar">
     <div class="nav-logo">YL Note</div>
@@ -481,6 +606,7 @@
         showPage('pageAuth');
       }
       updateAvatarUI();
+      setTimeout(initLiquidGlass, 100);
     }
 
     function loadSession() {
@@ -505,6 +631,7 @@
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.getElementById(id).classList.add('active');
       window.scrollTo(0, 0);
+      setTimeout(rebuildLiquidGlass, 50);
     }
 
     async function handleLogin() {
@@ -696,6 +823,8 @@
         document.getElementById('fs-l')?.classList.toggle('selected', fs === 'l');
         document.getElementById('fs-xl')?.classList.toggle('selected', fs === 'xl');
       }, 0);
+
+      setTimeout(rebuildLiquidGlass, 100);
     }
 
     function setTheme(t) { localStorage.setItem('yl_note_theme', t); applySettings(); showToast('主题已切换'); }
@@ -722,6 +851,307 @@
       const pad = n => String(n).padStart(2, '0');
       return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
+
+    // ============================================================
+    // iOS 真·液态玻璃（SVG 折射 + 物理引擎）
+    // ============================================================
+    function initLiquidGlass() {
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var K = 4 / 48;
+      var W_FRACTION = Math.sqrt(1000), W_SCALE = Math.sqrt(250), W_VELOCITY = Math.sqrt(300);
+      var DRAG_W = 20, PRESSED_SCALE = 1.5, VELOCITY_DIVISOR = 10;
+
+      function lensMap(w, h, r, edge) {
+        w = Math.round(w); h = Math.round(h);
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        var g = c.getContext('2d'), img = g.createImageData(w, h), d = img.data;
+        for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) {
+          var px = x + .5 - w / 2, py = y + .5 - h / 2;
+          var qx = Math.abs(px) - (w / 2 - r), qy = Math.abs(py) - (h / 2 - r);
+          var mx = Math.max(qx, 0), my = Math.max(qy, 0), len = Math.sqrt(mx * mx + my * my);
+          var dist = r - len - Math.min(Math.max(qx, qy), 0);
+          var nx, ny;
+          if (len > 0) { nx = mx / len; ny = my / len; }
+          else if (qx > qy) { nx = 1; ny = 0; } else { nx = 0; ny = 1; }
+          nx *= px < 0 ? -1 : 1; ny *= py < 0 ? -1 : 1;
+          var m = 0;
+          if (dist > 0 && dist < edge) { var t = 1 - dist / edge; m = 1 - Math.sqrt(1 - t * t); }
+          var k = (y * w + x) * 4;
+          d[k] = 128 - nx * m * 127; d[k + 1] = 128 - ny * m * 127; d[k + 2] = 128; d[k + 3] = 255;
+        }
+        g.putImageData(img, 0, 0);
+        return c.toDataURL();
+      }
+
+      function setRefraction(id, w, h, r, edge, amount) {
+        w = Math.round(w); h = Math.round(h);
+        if (!w || !h) return;
+        var svg = document.getElementById('lg-defs');
+        if (!svg) return;
+        var old = document.getElementById(id); if (old) old.remove();
+        var s = amount * 2, url = lensMap(w, h, Math.min(r, w / 2, h / 2), edge);
+        function ch(name, scale, m) {
+          return '<feDisplacementMap in="SourceGraphic" in2="map" scale="' + scale.toFixed(2) + '" xChannelSelector="R" yChannelSelector="G" result="d' + name + '"/>' +
+            '<feColorMatrix in="d' + name + '" type="matrix" values="' + m + '" result="' + name + '"/>';
+        }
+        svg.insertAdjacentHTML('beforeend',
+          '<filter id="' + id + '" x="0" y="0" width="' + w + '" height="' + h + '" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">' +
+          '<feImage href="' + url + '" x="0" y="0" width="' + w + '" height="' + h + '" preserveAspectRatio="none" result="map"/>' +
+          ch('r', s, '1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0') +
+          ch('g', s * 1.08, '0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0') +
+          ch('b', s * 1.16, '0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0') +
+          '<feComposite in="r" in2="g" operator="arithmetic" k2="1" k3="1" result="rg"/>' +
+          '<feComposite in="rg" in2="b" operator="arithmetic" k2="1" k3="1"/></filter>');
+      }
+
+      function critical(x, v, t, dt, w) {
+        var o = x - t, e = Math.exp(-w * dt);
+        return [t + (o * e + (v + w * o) * dt * e), -w * o * e + (v + w * o) * (e - w * dt * e)];
+      }
+      function under(x, v, t, dt, w, z) {
+        var o = x - t, wd = w * Math.sqrt(1 - z * z), e = Math.exp(-z * w * dt),
+            c = Math.cos(wd * dt), sn = Math.sin(wd * dt),
+            d = o * e * c + (v + z * w * o) / wd * e * sn;
+        return [t + d, -z * w * d + e * (-o * wd * sn + (v + z * w * o) * c)];
+      }
+
+      // 按钮 / 设置选项
+      function attachLiquid(el, idx, idPrefix) {
+        if (el.dataset.lgBound) return;
+        el.dataset.lgBound = '1';
+
+        if (!el.querySelector('.lg-glass')) {
+          var origHTML = el.innerHTML;
+          el.innerHTML = '<div class="lg-glass"></div><span>' + origHTML + '</span>';
+        }
+        var glass = el.querySelector('.lg-glass');
+        if (!glass) return;
+        var id = idPrefix + idx;
+
+        function build() {
+          if (!el.offsetWidth) return;
+          setRefraction(id, el.offsetWidth, el.offsetHeight, Math.min(el.offsetHeight / 2, el.offsetWidth / 2), 12, 24);
+          var f = 'url(#' + id + ') blur(2px) saturate(1.5)';
+          glass.style.webkitBackdropFilter = f;
+          glass.style.backdropFilter = f;
+        }
+        build();
+        if (window.ResizeObserver) new ResizeObserver(build).observe(el);
+
+        var p = 0, pv = 0, tp = 0, dx = 0, dy = 0, tdx = 0, tdy = 0, vx = 0, vy = 0;
+        var pid = null, raf = 0, last = 0, sx = 0, sy = 0;
+
+        function draw() {
+          var w = el.offsetWidth, h = el.offsetHeight, big = Math.max(w, h), small = Math.min(w, h);
+          var press = Math.max(0, p), s = 1 + K * press;
+          var ox = small * Math.tanh(.05 * dx / small), oy = small * Math.tanh(.05 * dy / small);
+          var ang = Math.atan2(dy, dx);
+          var scx = s + K * Math.abs(Math.cos(ang) * dx / big) * Math.min(w / h, 1);
+          var scy = s + K * Math.abs(Math.sin(ang) * dy / big) * Math.min(h / w, 1);
+          el.style.transform = 'translate3d(' + ox.toFixed(2) + 'px,' + oy.toFixed(2) + 'px,0) scale(' + scx.toFixed(4) + ',' + scy.toFixed(4) + ')';
+          el.style.setProperty('--press', Math.min(1, press).toFixed(3));
+        }
+        function frame(now) {
+          var dt = Math.min((now - last) / 1000, .05); last = now;
+          if (reduceMotion) { p = tp; dx = tdx; dy = tdy; pv = vx = vy = 0; }
+          else {
+            var r = critical(p, pv, tp, dt, W_FRACTION); p = r[0]; pv = r[1];
+            r = critical(dx, vx, tdx, dt, W_FRACTION); dx = r[0]; vx = r[1];
+            r = critical(dy, vy, tdy, dt, W_FRACTION); dy = r[0]; vy = r[1];
+          }
+          draw();
+          var done = pid === null && Math.abs(p - tp) < .002 && Math.abs(pv) < .01 &&
+                     Math.abs(dx) < .1 && Math.abs(dy) < .1 && Math.abs(vx) < .1 && Math.abs(vy) < .1;
+          if (done) { p = dx = dy = 0; draw(); raf = 0; } else raf = requestAnimationFrame(frame);
+        }
+        function kick() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+        function glow(e) {
+          var r = el.getBoundingClientRect();
+          glass.style.setProperty('--gx', (e.clientX - r.left) + 'px');
+          glass.style.setProperty('--gy', (e.clientY - r.top) + 'px');
+        }
+
+        el.addEventListener('pointerdown', function (e) {
+          pid = e.pointerId; el.setPointerCapture(pid);
+          sx = e.clientX; sy = e.clientY; tdx = tdy = 0; tp = 1;
+          glow(e); kick();
+        });
+        el.addEventListener('pointermove', function (e) {
+          if (e.pointerId !== pid) return;
+          tdx = e.clientX - sx; tdy = e.clientY - sy;
+          glow(e); kick();
+        });
+        function up(e) {
+          if (pid === null || (e && e.pointerId !== pid)) return;
+          pid = null; tp = 0; tdx = tdy = 0; kick();
+        }
+        el.addEventListener('pointerup', up);
+        el.addEventListener('pointercancel', up);
+        el.addEventListener('lostpointercapture', up);
+        el.addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') { tp = 1; kick(); } });
+        el.addEventListener('keyup', function () { tp = 0; kick(); });
+        draw();
+      }
+
+      // 按钮
+      Array.prototype.forEach.call(document.querySelectorAll('.btn'), function (el, idx) {
+        attachLiquid(el, idx, 'lg-btn-');
+      });
+
+      // 设置选项
+      Array.prototype.forEach.call(document.querySelectorAll('.settings-option'), function (el, idx) {
+        attachLiquid(el, idx, 'lg-opt-');
+      });
+
+      // 开关
+      Array.prototype.forEach.call(document.querySelectorAll('.switch'), function (el) {
+        if (el.dataset.lgBound) return;
+        el.dataset.lgBound = '1';
+
+        var input = el.querySelector('input');
+        var on = input ? input.checked : (el.getAttribute('aria-checked') === 'true');
+        var disabled = el.getAttribute('aria-disabled') === 'true';
+
+        el.innerHTML = '<span class="lg-track"></span><span class="lg-thumb"><span class="lg-glass"></span><span class="lg-solid"></span><span class="lg-rim"></span></span>';
+        var thumb = el.querySelector('.lg-thumb');
+
+        var s = {
+          f: on ? 1 : 0, fv: 0, tf: on ? 1 : 0,
+          press: 0, pv: 0, tPress: 0,
+          sx: 1, sxv: 0, sy: 1, syv: 0, tScale: 1,
+          vel: 0, velv: 0, tVel: 0,
+          dragging: false, trackVel: false,
+          lastF: on ? 1 : 0, lastT: 0
+        };
+        var raf = 0, last = 0, downX = 0, downF = 0, moved = false, pid = null;
+
+        function step(dt) {
+          if (s.tPress === 1 && !s.dragging && Math.abs(s.tf - s.f) < .02) { s.tPress = 0; s.tScale = 1; }
+          var r = critical(s.f, s.fv, s.tf, dt, W_FRACTION); s.f = r[0]; s.fv = r[1];
+          if (s.trackVel || s.dragging) {
+            var now = performance.now();
+            if (s.lastT && now > s.lastT) {
+              var inst = (s.f - s.lastF) / ((now - s.lastT) / 1000);
+              s.tVel += (inst - s.tVel) * .5;
+            }
+            s.lastF = s.f; s.lastT = now;
+          }
+          if (!s.dragging && Math.abs(s.tf - s.f) < .003 && Math.abs(s.fv) < .003) {
+            s.f = s.tf; s.fv = 0; s.tVel = 0; s.trackVel = false; s.lastT = 0;
+          }
+          r = critical(s.press, s.pv, s.tPress, dt, W_FRACTION); s.press = r[0]; s.pv = r[1];
+          r = under(s.sx, s.sxv, s.tScale, dt, W_SCALE, .6); s.sx = r[0]; s.sxv = r[1];
+          r = under(s.sy, s.syv, s.tScale, dt, W_SCALE, .7); s.sy = r[0]; s.syv = r[1];
+          r = under(s.vel, s.velv, s.tVel, dt, W_VELOCITY, .5); s.vel = r[0]; s.velv = r[1];
+        }
+
+        function render() {
+          var a = s.vel / VELOCITY_DIVISOR,
+              i = Math.max(-.2, Math.min(.2, .75 * a)),
+              o = Math.max(-.2, Math.min(.2, .25 * a));
+          var sx = s.sx / (1 - i), sy = s.sy * (1 - o);
+          var press = Math.max(0, Math.min(1, s.press));
+          thumb.style.transform = 'translate3d(' + (s.f * DRAG_W).toFixed(2) + 'px,0,0) scale(' + sx.toFixed(4) + ',' + sy.toFixed(4) + ')';
+          el.style.setProperty('--p', Math.max(0, Math.min(1, s.f)).toFixed(3));
+          el.style.setProperty('--press', press.toFixed(3));
+          el.classList.toggle('lg-refract', press > .01);
+        }
+
+        function idle() {
+          return !s.dragging && s.tPress === 0 &&
+            Math.abs(s.tf - s.f) < .003 && Math.abs(s.fv) < .003 &&
+            Math.abs(s.press) < .003 && Math.abs(s.pv) < .003 &&
+            Math.abs(s.sx - 1) < .003 && Math.abs(s.sxv) < .003 &&
+            Math.abs(s.sy - 1) < .003 && Math.abs(s.syv) < .003 &&
+            Math.abs(s.vel) < .003 && Math.abs(s.velv) < .003;
+        }
+
+        function frame(now) {
+          var dt = Math.min((now - last) / 1000, .05); last = now;
+          if (reduceMotion) {
+            s.f = s.tf; s.fv = 0; s.vel = s.velv = 0; s.sx = s.sy = 1;
+            s.press = s.dragging ? 1 : 0; s.tPress = s.press;
+          } else step(dt);
+          render();
+          if (idle()) { s.press = 0; s.sx = s.sy = 1; s.vel = 0; render(); raf = 0; }
+          else raf = requestAnimationFrame(frame);
+        }
+        function kick() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+
+        function setTarget(v) {
+          on = v;
+          el.setAttribute('aria-checked', v ? 'true' : 'false');
+          if (navigator.vibrate) navigator.vibrate(8);
+          if (s.tf === (v ? 1 : 0)) return;
+          s.tf = v ? 1 : 0;
+          s.trackVel = false; s.tVel = 0; s.vel = 0; s.velv = 0; s.lastT = 0;
+          if (s.tPress === 0) { s.tPress = 1; s.tScale = PRESSED_SCALE; }
+          kick();
+          if (typeof window.toggleMaterial === 'function' && el.closest('.material-toggle')) {
+            window.toggleMaterial(v);
+          }
+        }
+
+        el.addEventListener('pointerdown', function (e) {
+          if (disabled) return;
+          pid = e.pointerId; el.setPointerCapture(pid);
+          downX = e.clientX; downF = s.f; moved = false;
+          s.dragging = true; s.tPress = 1; s.tScale = PRESSED_SCALE;
+          s.tVel = 0; s.vel = 0; s.velv = 0; s.lastT = 0;
+          kick();
+        });
+        el.addEventListener('pointermove', function (e) {
+          if (!s.dragging || e.pointerId !== pid) return;
+          var dx = e.clientX - downX;
+          if (!moved && Math.abs(dx) > 3) moved = true;
+          if (!moved) return;
+          s.tf = Math.max(0, Math.min(1, downF + dx / (DRAG_W * el.getBoundingClientRect().width / 64)));
+          kick();
+        });
+        function release(e) {
+          if (!s.dragging || (e && e.pointerId !== pid)) return;
+          s.dragging = false;
+          if (moved) {
+            s.tf = s.tf >= .5 ? 1 : 0; s.trackVel = true;
+            var next = s.tf === 1;
+            if (next !== on) {
+              on = next;
+              el.setAttribute('aria-checked', next ? 'true' : 'false');
+              if (navigator.vibrate) navigator.vibrate(8);
+              if (typeof window.toggleMaterial === 'function' && el.closest('.material-toggle')) {
+                window.toggleMaterial(next);
+              }
+            }
+            kick();
+          } else {
+            s.tPress = 0; s.tScale = 1;
+            setTarget(!on);
+            kick();
+          }
+        }
+        el.addEventListener('pointerup', release);
+        el.addEventListener('pointercancel', release);
+        el.addEventListener('lostpointercapture', release);
+        el.addEventListener('click', function (e) {
+          if (disabled || e.detail !== 0) return;
+          setTarget(!on);
+        });
+
+        render();
+      });
+
+      setRefraction('lg-knob', 40, 24, 12, 5, 10);
+    }
+
+    function rebuildLiquidGlass() {
+      var svg = document.getElementById('lg-defs');
+      if (svg) svg.innerHTML = '';
+      document.querySelectorAll('.btn, .settings-option, .switch').forEach(function(el) {
+        delete el.dataset.lgBound;
+      });
+      initLiquidGlass();
+    }
+    window.rebuildLiquidGlass = rebuildLiquidGlass;
 
     init();
   </script>
